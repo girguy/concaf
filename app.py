@@ -1,5 +1,4 @@
 import streamlit as st
-
 import polars as pl
 import logging
 from PIL import Image
@@ -55,7 +54,6 @@ st.markdown(
 
 
 def initialize_classes():
-
     players_df = pl.read_csv(f"C:/Users/guygi/OneDrive/Bureau/concaf_analytics/datasets/clean/{PLAYER}.csv", infer_schema_length=10000)
     nations_df = pl.read_csv(f"C:/Users/guygi/OneDrive/Bureau/concaf_analytics/datasets/clean/{NATION}.csv", infer_schema_length=10000)
     clubs_df = pl.read_csv(f"C:/Users/guygi/OneDrive/Bureau/concaf_analytics/datasets/clean/{CLUB}.csv", infer_schema_length=10000)
@@ -96,7 +94,7 @@ def page_title():
 
 data_extractor, visualizer = initialize_classes()
 
-page = st.sidebar.selectbox(' ', ['Tournament', 'Nations'])
+page = st.sidebar.selectbox(' ', ['Nations', 'Tournament'])
 
 if page == 'Nations':
     page_title()
@@ -109,17 +107,19 @@ if page == 'Nations':
     background_plot_color = "#191919"
     bar_plot_color = "#006400"
 
+    best_club_nb_players, top_league_nb_players, avg_age_players, avg_nation_market_vakue = data_extractor.get_kpis()
+
     with top_5_league:
-        visualizer.kpi('Players in top 5 leagues', 125, height_plot, font_size, background_plot_color, bar_plot_color)
+        visualizer.kpi('Players in top 5 leagues', best_club_nb_players, height_plot, font_size, background_plot_color, bar_plot_color)
 
     with top_30_teams:
-        visualizer.kpi('Players In Top 30 Clubs', 125, height_plot, font_size, background_plot_color, bar_plot_color)
+        visualizer.kpi('Players In Top 30 Clubs', top_league_nb_players, height_plot, font_size, background_plot_color, bar_plot_color)
 
     with avg_market:
-        visualizer.kpi('Market Value Per Nation', 125, height_plot, font_size, background_plot_color, bar_plot_color)
+        visualizer.kpi('Market Value Per Nation', avg_nation_market_vakue, height_plot, font_size, background_plot_color, bar_plot_color)
 
     with avg_age:
-        visualizer.kpi('Player Average Age', 125, height_plot, font_size, background_plot_color, bar_plot_color)
+        visualizer.kpi('Player Average Age', avg_age_players, height_plot, font_size, background_plot_color, bar_plot_color)
 
     col_1, col_2 = st.columns(2)
 
@@ -129,24 +129,25 @@ if page == 'Nations':
     background_plot_color = "#191919"
     plot_bgcolor = "#006400"
     with col_1:
-        visualizer.plot_players_per_league('Number of Players per Top 5 Leagues', width_plot, height_plot, font_size, background_plot_color)
+        data = data_extractor.get_number_of_player_per_top_league()
+        visualizer.plot_players_per_league('Number of Players per Top 5 Leagues', data, width_plot, height_plot, font_size, background_plot_color)
 
     with col_2:
-        title = 'African Football Nations FIFA Rankings'
-        visualizer.plot_fifa_ranking(title, width_plot, height_plot, font_size, background_plot_color)
+        data = data_extractor.get_ranking_per_nation()
+        visualizer.plot_fifa_ranking('African Football Nations FIFA Rankings', data, width_plot, height_plot, font_size, background_plot_color)
 
     col_1, col_2 = st.columns(2)
 
     with col_1:
-        title = 'Team Market Values of African Football Nations'
-        visualizer.market_value_per_team(title, width_plot, height_plot, font_size, background_plot_color)
+        data = data_extractor.get_market_value_per_nation()
+        visualizer.market_value_per_team('Team Market Values of African Football Nations', data, width_plot, height_plot, font_size, background_plot_color)
 
     with col_2:
-        title = 'Market Value Per Position'
-        visualizer.position_market_value(title, width_plot, height_plot, font_size, background_plot_color)
+        data = data_extractor.get_market_value_per_position()
+        visualizer.position_market_value('Market Value Per Position', data, width_plot, height_plot, font_size, background_plot_color)
 
-    title = 'Average Age and Cap of African Football Nations'
-    visualizer.average_age_and_cap(title, width_plot, height_plot, font_size, background_plot_color)
+    data = data_extractor.get_average_age_cap()
+    visualizer.average_age_and_cap('Average Age and Cap of African Football Nations', data, width_plot, height_plot, font_size, background_plot_color)
 
 elif page == 'Tournament':
     page_title()
@@ -160,20 +161,22 @@ elif page == 'Tournament':
     background_plot_color = "#191919"
     bar_plot_color = "#006400"
 
+    data = data_extractor.get_tournament_info()
+
     with nb_games:
-        visualizer.kpi('Number Of Games Played', 125, height_plot, font_size, background_plot_color, bar_plot_color)
+        visualizer.kpi('Number Of Games Played', data[0], height_plot, font_size, background_plot_color, bar_plot_color)
 
     with nb_goals:
-        visualizer.kpi('Number Of Goals', 125, height_plot, font_size, background_plot_color, bar_plot_color)
+        visualizer.kpi('Number Of Goals', data[1], height_plot, font_size, background_plot_color, bar_plot_color)
 
     with avg_goals:
-        visualizer.kpi('Average Number Of Goals', 125, height_plot, font_size, background_plot_color, bar_plot_color)
+        visualizer.kpi('Average Number Of Goals', data[2], height_plot, font_size, background_plot_color, bar_plot_color)
 
     with nb_wins:
-        visualizer.kpi('Number Of wins', 125, height_plot, font_size, background_plot_color, bar_plot_color)
+        visualizer.kpi('Number Of wins', data[3], height_plot, font_size, background_plot_color, bar_plot_color)
 
     with nb_draws:
-        visualizer.kpi('Number Of Draws', 125, height_plot, font_size, background_plot_color, bar_plot_color)
+        visualizer.kpi('Number Of Draws', data[4], height_plot, font_size, background_plot_color, bar_plot_color)
 
     col_1, col_2 = st.columns(2)
 
@@ -184,22 +187,20 @@ elif page == 'Tournament':
     background_plot_color = "#191919"
     bar_plot_color = "#006400"
 
-    title = 'Games Played'
-    visualizer.results(title, width_plot, height_plot, font_size, background_plot_color)
+    data = data_extractor.get_result_of_the_competiton()
+    visualizer.results('Games Played', data, width_plot, height_plot, font_size, background_plot_color)
 
-    nextFixtures = ['01/02/2024 : Senegal vs Guinea', '01/02/2024 : Ivory Coast vs Mali', '01/02/2024 : Tanzania vs Algeria']
-    homeTeams = ['Senegal', 'Ivory Coast', 'Tanzania']
-    awayTeams = ['Guinea', 'Mali', 'Algeria']
+    nextFixtures, home_teams, away_teams = data_extractor.get_fixtures_info()
     fixtureChoice = st.selectbox('Fixtures', nextFixtures)
     index = nextFixtures.index(fixtureChoice)
-    homeTeamName = homeTeams[index]
-    awayTeamName = awayTeams[index]
+    home_team_name = home_teams[index]
+    away_team_name = away_teams[index]
 
     st.markdown(" ")  # This creates additional space after the title
 
     visualizer.display_match_info(
-        f'{homeTeamName}', f'team_pictures/{homeTeamName}.png',
-        f'{awayTeamName}', f'team_pictures/{awayTeamName}.png'
+        f'{home_team_name}', f'team_pictures/{home_team_name}.png',
+        f'{away_team_name}', f'team_pictures/{away_team_name}.png'
         )
 
     st.markdown(" ")  # This creates additional space after the title
@@ -207,23 +208,26 @@ elif page == 'Tournament':
 
     col_1, col_2, col_3, col_4, col_5, col_6 = st.columns(6)
 
-    win = 35
-    loose = 25
-    draw = 40
-    both = 15
-    more25 = 35
-    more35 = 14
-    font_size = 10
+    data = data_extractor.get_fixtures_predictions(home_team_name, away_team_name)
+
+    win = round(float(data[0]), 2)
+    draw = round(float(data[1]), 2)
+    loose = round(float(data[2]), 2)
+    both = round(float(data[3]), 2)
+    more15 = round(float(data[4]), 2)
+    more25 = round(float(data[5]), 2)
+    more35 = round(float(data[6]), 2)
+    font_size = 8
     height = 130
 
-    color_1 = "#191919" # dark grey
-    color_2 = "#006400" # green
+    color_1 = "#191919"  # dark grey
+    color_2 = "#006400"  # green
 
     with col_1:
-        visualizer.odd_circle(f"{homeTeamName} - Win", win, 120, height, font_size, color_1, color_2)
+        visualizer.odd_circle(f"{home_team_name} - Win", win, 120, height, font_size, color_1, color_2)
 
     with col_2:
-        visualizer.odd_circle(f"{awayTeamName} - Win", loose, 120, height, font_size, color_1, color_2)
+        visualizer.odd_circle(f"{away_team_name} - Win", loose, 120, height, font_size, color_1, color_2)
 
     with col_3:
         visualizer.odd_circle("Draw", draw, 120, height, font_size, color_1, color_2)
@@ -236,3 +240,7 @@ elif page == 'Tournament':
 
     with col_6:
         visualizer.odd_circle("More than 3.5 goals", more35, 120, height, font_size, color_1, color_2)
+
+    data = data_extractor.past_games(home_team_name, away_team_name)
+    print(data)
+    visualizer.past_games(f'Past Games between {home_team_name} and {away_team_name}', data, width_plot, height_plot, font_size, background_plot_color)

@@ -163,3 +163,5 @@ cython_debug/
 .vscode/settings.json
 .vscode/tasks.json
 test.py
+test.ipynb
+pictures/.$logo_team.png.bkp

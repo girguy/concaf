@@ -38,9 +38,6 @@ class Visualizer:
 
         fig.update_layout(
             title=self.define_title(title, 0.5, 0.8),
-            legend=dict(orientation="h"),
-            font=dict(size=font_size),
-            showlegend=False,
             autosize=False,
             height=height,
             margin=dict(l=10, r=10, b=10, t=40, pad=4),
@@ -48,22 +45,16 @@ class Visualizer:
             plot_bgcolor=plot_color
         )
 
-        st.plotly_chart(fig,
-                        use_container_width=True,
-                        config=dict({'staticPlot': True}))
+        st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot': True}))
 
-    def plot_players_per_league(self, title, width, height, font_size, background_plot_color):
+
+
+    def plot_players_per_league(self, title, df, width, height, font_size, background_plot_color):
         fig = go.Figure()
-
-        df = pd.DataFrame({
-            'League': ['Premier League', 'La Liga', 'Bundesliga', 'Serie A', 'Ligue 1'],
-            'PlayerCount': [320, 280, 300, 290, 310]  # Sample data
-            })
-        df = df.sort_values(by='PlayerCount', ascending=True)
 
         fig.add_trace(go.Bar(
             x=df['PlayerCount'],
-            y=df['League'],
+            y=df['Country'],
             text=df['PlayerCount'],
             orientation='h',
             width=0.7,
@@ -74,9 +65,6 @@ class Visualizer:
 
         fig.update_layout(
             title=self.define_title(title, 0.5, 0.95),
-            legend=dict(orientation="h"),
-            font=dict(size=font_size),
-            showlegend=False,
             width=width,
             height=height,
             margin=dict(l=10, r=10, b=10, t=40, pad=4),
@@ -91,33 +79,13 @@ class Visualizer:
         st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':False}))
 
 
-    def plot_fifa_ranking(self, title, width, height, font_size, background_plot_color):
-        # Sample data for 26 countries
-        data = {
-            'Nation': [
-                'Senegal', 'Tunisia', 'Nigeria', 'Algeria', 'Morocco',
-                'Egypt', 'Ghana', 'Cameroon', 'Mali', 'Burkina Faso',
-                'DR Congo', 'Ivory Coast', 'South Africa', 'Guinea',
-                'Cape Verde', 'Uganda', 'Zambia', 'Benin', 'Gabon',
-                'Congo', 'Madagascar', 'Niger', 'Libya', 'Mauritania',
-                'Kenya', 'Zimbabwe'
-                ],
-
-            'FIFA Ranking': [
-                20, 27, 32, 35, 43, 49, 50, 53, 57, 60,
-                61, 65, 67, 70, 72, 75, 76, 80, 82, 85,
-                87, 88, 89, 90, 92, 93
-                ]
-                }
-
-        df = pd.DataFrame(data)
-
+    def plot_fifa_ranking(self, title, df, width, height, font_size, background_plot_color):
         fig = go.Figure(
             data=[go.Table(
                     header=dict(values=list(df.columns),
                                 line_color=background_plot_color,
                                 fill_color="black"),
-                    cells=dict(values=[df.Nation, df['FIFA Ranking']],
+                    cells=dict(values=[df['Nation'], df['Nation Ranking']],
                                line_color=background_plot_color,
                                fill_color=background_plot_color,
                                font=dict(color=['white', 'green']),
@@ -126,9 +94,6 @@ class Visualizer:
 
         fig.update_layout(
             title=self.define_title(f'{title}', 0.5, 0.95),
-            legend=dict(orientation="h"),
-            font=dict(size=font_size),
-            showlegend=False,
             autosize=False,
             width=width,
             height=height,
@@ -139,34 +104,12 @@ class Visualizer:
 
         st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':False}))
 
-    def market_value_per_team(self, title, width, height, font_size, background_plot_color):
-        data = {
-            'Country': [
-                'Senegal', 'Tunisia', 'Nigeria', 'Algeria', 'Morocco',
-                'Egypt', 'Ghana', 'Cameroon', 'Mali', 'Burkina Faso',
-                'DR Congo', 'Ivory Coast', 'South Africa', 'Guinea',
-                'Cape Verde', 'Uganda', 'Zambia', 'Benin', 'Gabon',
-                'Congo', 'Madagascar', 'Niger', 'Libya', 'Mauritania',
-                'Kenya', 'Zimbabwe'
-                ],
-
-            'MarketValue': [
-                200, 150, 180, 160, 175, 190, 140, 130, 120, 110,
-                105, 100, 95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45,
-                40, 35, 30
-                ]
-                }
-
-        df = pd.DataFrame(data)
-
+    def market_value_per_team(self, title, df, width, height, font_size, background_plot_color):
         fig = go.Figure()
-        fig.add_trace(go.Bar(x=df['Country'], y=df['MarketValue'], marker_color="#006400"))
+        fig.add_trace(go.Bar(x=df['Nation'], y=df['MarketValue'], marker_color="#006400"))
 
         fig.update_layout(
             title=self.define_title(f'{title}', 0.5, 0.95),
-            legend=dict(orientation="h"),
-            font=dict(size=font_size),
-            showlegend=False,
             autosize=False,
             width=width,
             height=height,
@@ -180,19 +123,12 @@ class Visualizer:
 
         st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':False}))
 
-    def position_market_value(self, title, width, height, font_size, background_plot_color):
-        df = pd.DataFrame({
-            'Position': ["Defense", "Offense", "Keeper", "Midfield"],
-            'MarketValue': [100, 120, 30, 40]  # Sample data
-            })
-        df = df.sort_values(by='MarketValue', ascending=True)
-
+    def position_market_value(self, title, df, width, height, font_size, background_plot_color):
         fig = go.Figure()
 
         fig.add_trace(go.Bar(
             x=df['MarketValue'],
             y=df['Position'],
-            text=df['MarketValue'],
             orientation='h',
             width=0.7,
             marker=dict(
@@ -202,9 +138,6 @@ class Visualizer:
 
         fig.update_layout(
             title=self.define_title(title, 0.5, 0.95),
-            legend=dict(orientation="h"),
-            font=dict(size=font_size),
-            showlegend=False,
             width=width,
             height=height,
             margin=dict(l=10, r=10, b=10, t=40, pad=4),
@@ -218,40 +151,23 @@ class Visualizer:
 
         st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':False}))
 
-    def average_age_and_cap(self, title, width, height, font_size, background_plot_color):
-        data = {
-            'Country': ['Egypt', 'Nigeria', 'Senegal', 'Algeria', 'Morocco',
-                        'Ghana', 'Cameroon', 'Mali', 'Burkina Faso', 'Tunisia',
-                        'DR Congo', 'Ivory Coast', 'South Africa', 'Guinea',
-                        'Cape Verde', 'Uganda', 'Zambia', 'Benin', 'Gabon',
-                        'Congo', 'Madagascar', 'Niger', 'Libya', 'Mauritania',
-                        'Kenya', 'Zimbabwe'],
-            'AverageAge': [25, 26, 27, 24, 25, 26, 27, 23, 24, 26, 
-                           25, 24, 27, 25, 26, 23, 24, 25, 26, 24,
-                           23, 25, 26, 24, 27, 25],  # Sample average ages
-            'AverageCaps': [50, 60, 55, 45, 50, 65, 40, 70, 75, 80, 
-                            35, 45, 50, 55, 60, 40, 45, 50, 55, 45,
-                            35, 40, 45, 50, 55, 60]  # Sample average number of caps
-        }
-
-        df = pd.DataFrame(data)
-
+    def average_age_and_cap(self, title, df, width, height, font_size, background_plot_color):
         # Create a bubble chart using Plotly Graph Objects
         fig = go.Figure()
 
         # Create a bubble chart using Plotly Graph Objects
         fig = go.Figure(data=[
             go.Scatter(
-                x=df['AverageAge'],
-                y=df['AverageCaps'],
+                x=df['AgeAverage'],
+                y=df['AverageCap'],
                 mode='markers+text',
                 marker=dict(
-                    size=df['AverageCaps'],
-                    color=df['AverageAge'],  # Color by Average Age
+                    size=df['AverageCap'],
+                    color=df['AgeAverage'],  # Color by Average Age
                     colorscale='Greens',
                     showscale=True
                 ),
-                text=df['Country']
+                text=df['Nationality']
             )
         ])
 
@@ -272,24 +188,13 @@ class Visualizer:
 
         st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':False}))
 
-    def results(self, title, width, height, font_size, background_plot_color):
-        data = {
-            'Date': ['20/01/2023', '21/01/2023'],
-            'Team 1': ['Ivory Coast', 'Congo'],
-            'Team 2': ['Burkina Faso', 'Tanzania'],
-            'Results': ['2 - 1', '1 - 1'],
-            'Phase': ['Group', 'Group']
-        }
-
-        # Create a DataFrame
-        df = pd.DataFrame(data)
-
+    def results(self, title, df, width, height, font_size, background_plot_color):
         fig = go.Figure(
             data=[go.Table(
                     header=dict(values=list(df.columns),
                                 line_color=background_plot_color,
                                 fill_color="black"),
-                    cells=dict(values=[df['Date'], df['Team 1'], df['Team 2'], df['Results'], df['Phase']],
+                    cells=dict(values=[df['Date'], df['HomeTeam'], df['AwayTeam'], df['Result']],
                                line_color=background_plot_color,
                                fill_color=background_plot_color,
                                font=dict(color=['white', 'white', 'white', "#006400", 'white']),
@@ -298,9 +203,6 @@ class Visualizer:
 
         fig.update_layout(
             title=self.define_title(f'{title}', 0.5, 0.95),
-            legend=dict(orientation="h"),
-            font=dict(size=font_size),
-            showlegend=False,
             autosize=False,
             width=width,
             height=height,
@@ -344,22 +246,20 @@ class Visualizer:
         st.markdown(html, unsafe_allow_html=True)
 
     def odd_circle(self, odd_name, percentage, width, height, font_size, color_1, color_2):
-        colors = [color_2, 'white']
+        colors = [color_2, 'black']
         percentages = [percentage, 100-percentage]
 
         fig = go.Figure()
-        fig.add_trace(go.Pie(values=percentages, hole=.7, name=odd_name))
+        fig.add_trace(go.Pie(values=percentages, hole=.9, name=odd_name))
         fig.update_traces(textinfo="none", marker=dict(colors=colors))
 
-        text = "<span style='color:" + 'white' + "'>"+odd_name
+        title = "<span style='color:" + 'white' + "'>"+odd_name
         fig.update_layout(title={
-                'text': text, 
-                'y':0.97,
+                'text': title, 
+                'y':0.93,
                 'x':0.5,
                 'xanchor': 'center',
                 'yanchor': 'top'},
-            legend=dict(orientation="h"),
-            font=dict(size=font_size),
             showlegend=False,
             autosize=True,
             width=width,
@@ -370,12 +270,28 @@ class Visualizer:
             )
 
         st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':True}))
+    
+    def past_games(self, title, df, width, height, font_size, background_plot_color):
+        fig = go.Figure(
+            data=[go.Table(
+                    header=dict(values=list(df.columns),
+                                line_color=background_plot_color,
+                                fill_color="black"),
+                    cells=dict(values=[df['Date'], df['HomeTeam'], df['AwayTeam'], df['Result'], df['Phase']],
+                               line_color=background_plot_color,
+                               fill_color=background_plot_color,
+                               font=dict(color=['white', 'white', 'white', "#006400", '#006400']),
+                               height=25))]
+                        )
 
-    def more_than_15_goals(self):
-        pass
+        fig.update_layout(
+            title=self.define_title(f'{title}', 0.5, 0.95),
+            autosize=False,
+            width=width,
+            height=height,
+            margin=dict(l=10, r=10, b=10, t=40, pad=4),
+            paper_bgcolor=background_plot_color,
+            plot_bgcolor=background_plot_color
+            )
 
-    def more_than_25_goals(self):
-        pass
-
-    def more_than_35_goals(self):
-        pass
+        st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':False}))
