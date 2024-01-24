@@ -1,0 +1,4 @@
+azure-storage-blob
+pandas==2.2.0
+polars==0.20.5
+plotly==5.18.0

@@ -1,8 +1,6 @@
 from sys import set_asyncgen_hooks
 import streamlit as st
 import plotly.graph_objects as go
-import pandas as pd
-import plotly.express as px
 
 
 class Visualizer:
@@ -17,9 +15,9 @@ class Visualizer:
         self._games_df = games_df
         self._past_games_df = past_games_df
 
-    def define_title(self, title, x_pos, y_pos):
+    def define_title(self, title, x_pos, y_pos, title_font):
         title_format = {
-            'text': f"<span style='color: #FFFFFF; font-family: Gill San;'>{title}</span>",
+            'text': f"<span style='color: #FFFFFF; font-family: {title_font};'>{title}</span>",
             'x': x_pos,
             'y': y_pos,
             'xanchor': 'center',
@@ -37,7 +35,7 @@ class Visualizer:
         ))
 
         fig.update_layout(
-            title=self.define_title(title, 0.5, 0.8),
+            title=self.define_title(title, 0.5, 0.8, title_font='sans-serif'),
             autosize=False,
             height=height,
             margin=dict(l=10, r=10, b=10, t=40, pad=4),
@@ -45,8 +43,7 @@ class Visualizer:
             plot_bgcolor=plot_color
         )
 
-        st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot': True}))
-
+        st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot': True, 'displaylogo': False}))
 
 
     def plot_players_per_league(self, title, df, width, height, font_size, background_plot_color):
@@ -64,7 +61,7 @@ class Visualizer:
         ))
 
         fig.update_layout(
-            title=self.define_title(title, 0.5, 0.95),
+            title=self.define_title(title, 0.5, 0.95, title_font='sans-serif'),
             width=width,
             height=height,
             margin=dict(l=10, r=10, b=10, t=40, pad=4),
@@ -74,9 +71,9 @@ class Visualizer:
             bargroupgap=0.0  # gap between bars of the same location coordinate.
             )
 
-        fig.update_xaxes(visible=False)
+        fig.update_xaxes(visible=True)
 
-        st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':False}))
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
 
     def plot_fifa_ranking(self, title, df, width, height, font_size, background_plot_color):
@@ -88,12 +85,12 @@ class Visualizer:
                     cells=dict(values=[df['Nation'], df['Nation Ranking']],
                                line_color=background_plot_color,
                                fill_color=background_plot_color,
-                               font=dict(color=['white', 'green']),
+                               font=dict(color=['white', 'green'], size=14),
                                height=25))]
                         )
 
         fig.update_layout(
-            title=self.define_title(f'{title}', 0.5, 0.95),
+            title=self.define_title(f'{title}', 0.5, 0.95, title_font='sans-serif'),
             autosize=False,
             width=width,
             height=height,
@@ -102,15 +99,21 @@ class Visualizer:
             plot_bgcolor=background_plot_color
             )
 
-        st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':False}))
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
     def market_value_per_team(self, title, df, width, height, font_size, background_plot_color):
         fig = go.Figure()
-        fig.add_trace(go.Bar(x=df['Nation'], y=df['MarketValue'], marker_color="#006400"))
+        fig.add_trace(go.Bar(
+            x=df['Nation'],
+            y=df['MarketValue'],
+            orientation='v',
+            width=0.7,
+            marker=dict(
+                color='#006400'
+            )))
 
         fig.update_layout(
-            title=self.define_title(f'{title}', 0.5, 0.95),
-            autosize=False,
+            title=self.define_title(f'{title}', 0.5, 0.95, title_font='sans-serif'),
             width=width,
             height=height,
             margin=dict(l=10, r=10, b=10, t=40, pad=4),
@@ -121,14 +124,18 @@ class Visualizer:
         fig.update_xaxes(showgrid=False, zeroline=False, tickangle=-45)
         fig.update_yaxes(showgrid=False, zeroline=False)
 
-        st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':False}))
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
     def position_market_value(self, title, df, width, height, font_size, background_plot_color):
         fig = go.Figure()
 
+        text = (df['MarketValue']/1000000).to_list()
+        text = ['%.2f' % elem for elem in text]
+
         fig.add_trace(go.Bar(
             x=df['MarketValue'],
             y=df['Position'],
+            text=text,
             orientation='h',
             width=0.7,
             marker=dict(
@@ -137,19 +144,17 @@ class Visualizer:
         ))
 
         fig.update_layout(
-            title=self.define_title(title, 0.5, 0.95),
+            title=self.define_title(title, 0.5, 0.95, title_font='sans-serif'),
             width=width,
             height=height,
             margin=dict(l=10, r=10, b=10, t=40, pad=4),
             paper_bgcolor=background_plot_color,
             plot_bgcolor=background_plot_color,
-            bargap=0.4,  # gap between bars of adjacent location coordinates.
-            bargroupgap=0.0  # gap between bars of the same location coordinate.
             )
 
-        fig.update_xaxes(visible=False)
+        fig.update_xaxes(visible=True)
 
-        st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':False}))
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
     def average_age_and_cap(self, title, df, width, height, font_size, background_plot_color):
         # Create a bubble chart using Plotly Graph Objects
@@ -173,7 +178,7 @@ class Visualizer:
 
         # Update layout
         fig.update_layout(
-            title=self.define_title(title, 0.5, 0.95),
+            title=self.define_title(title, 0.5, 0.95, title_font='sans-serif'),
             xaxis_title='Average Age',
             yaxis_title='Average Caps',
             legend=dict(orientation="h"),
@@ -186,7 +191,7 @@ class Visualizer:
             plot_bgcolor=background_plot_color
         )
 
-        st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':False}))
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
     def results(self, title, df, width, height, font_size, background_plot_color):
         fig = go.Figure(
@@ -197,12 +202,12 @@ class Visualizer:
                     cells=dict(values=[df['Date'], df['HomeTeam'], df['AwayTeam'], df['Result']],
                                line_color=background_plot_color,
                                fill_color=background_plot_color,
-                               font=dict(color=['white', 'white', 'white', "#006400", 'white']),
+                               font=dict(color=['white', 'white', 'white', "#006400", 'white'], size=14),
                                height=25))]
                         )
 
         fig.update_layout(
-            title=self.define_title(f'{title}', 0.5, 0.95),
+            title=self.define_title(f'{title}', 0.5, 0.95, title_font='sans-serif'),
             autosize=False,
             width=width,
             height=height,
@@ -211,7 +216,7 @@ class Visualizer:
             plot_bgcolor=background_plot_color
             )
 
-        st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':False}))
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
 
     # Function to get the base64 string of an image
     def get_image_base64(self, image_path):
@@ -253,11 +258,11 @@ class Visualizer:
         fig.add_trace(go.Pie(values=percentages, hole=.9, name=odd_name))
         fig.update_traces(textinfo="none", marker=dict(colors=colors))
 
-        title = "<span style='color:" + 'white' + "'>"+odd_name
+        title = "<span style='color:white; font-family:sans-serif; font-size:13px;'>" + odd_name
         fig.update_layout(title={
-                'text': title, 
-                'y':0.93,
-                'x':0.5,
+                'text': title,
+                'y': 0.93,
+                'x': 0.5,
                 'xanchor': 'center',
                 'yanchor': 'top'},
             showlegend=False,
@@ -269,8 +274,8 @@ class Visualizer:
             paper_bgcolor=color_1,
             )
 
-        st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':True}))
-    
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})
+
     def past_games(self, title, df, width, height, font_size, background_plot_color):
         fig = go.Figure(
             data=[go.Table(
@@ -280,12 +285,12 @@ class Visualizer:
                     cells=dict(values=[df['Date'], df['HomeTeam'], df['AwayTeam'], df['Result'], df['Phase']],
                                line_color=background_plot_color,
                                fill_color=background_plot_color,
-                               font=dict(color=['white', 'white', 'white', "#006400", '#006400']),
+                               font=dict(color=['white', 'white', 'white', "#006400", '#006400'], size=14),
                                height=25))]
                         )
 
         fig.update_layout(
-            title=self.define_title(f'{title}', 0.5, 0.95),
+            title=self.define_title(f'{title}', 0.5, 0.95, title_font='sans-serif'),
             autosize=False,
             width=width,
             height=height,
@@ -294,4 +299,4 @@ class Visualizer:
             plot_bgcolor=background_plot_color
             )
 
-        st.plotly_chart(fig, use_container_width=True, config=dict({'staticPlot':False}))
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'staticPlot': False})

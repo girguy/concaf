@@ -53,11 +53,15 @@ class DataExtractor:
         return df.sort(by='MarketValue', descending=True)
 
     def get_market_value_per_position(self):
-        df = self._players_df.groupby('Position').agg(pl.sum('MarketValue').alias('MarketValue'))
+        df = self._players_df.groupby('Position').agg(pl.mean('MarketValue').alias('MarketValue'))
+        df = df.with_columns(df['MarketValue'].round(decimals=1))
         return df.sort(by='MarketValue', descending=True)
 
     def get_average_age_cap(self):
-        return self._nations_df.select('Nationality', 'AgeAverage', 'AverageCap')
+        df = self._nations_df.select('Nationality', 'AgeAverage', 'AverageCap')
+        df = df.with_columns(df['AgeAverage'].round(decimals=2))
+        df = df.with_columns(df['AverageCap'].round(decimals=2))
+        return df
 
     def get_result_of_the_competiton(self):
         df = self._games_df.with_columns([
